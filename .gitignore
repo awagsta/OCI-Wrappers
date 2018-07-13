@@ -1,0 +1,12 @@
+#Mac
+*.DS_Store
+
+#Environments
+venv/
+
+#Pipfiles
+Pipfiles
+Pipfiles.lock
+
+#VS Code
+.vscode
