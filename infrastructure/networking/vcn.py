@@ -11,10 +11,10 @@ class Vcn():
         cidr_block=cidr_block, display_name=vcn_name, compartment_id=compartment_id), 
         retry_strategy=oci.retry.DEFAULT_RETRY_STRATEGY)
 
-        oci.wait_until(virtual_network, virtual_network.get_vcn(created_vcn.id),
+        oci.wait_until(virtual_network, virtual_network.get_vcn(created_vcn.data.id),
         'lifecycle_state', 'AVAILABLE')
     
-        print("VCN Created with id {}".format(created_vcn.id))
+        print("VCN Created with name {0} and id {1}".format(vcn_name, created_vcn.data.id))
         return
 
 

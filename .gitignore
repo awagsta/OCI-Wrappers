@@ -6,7 +6,7 @@ venv/
 
 #Pipfiles
 Pipfiles
-Pipfiles.lock
+Pipfiles.lockgit 
 
 #VS Code
 .vscode
