@@ -7,8 +7,6 @@ class Vcn():
         self.id = None
         self.vcn_name = None
         self.virtual_network = None
-        self.gateway = None
-        self.subnets = set()
     
     def create_vcn(self, cidr_block, vcn_name):
         self.virtual_network = oci.core.VirtualNetworkClient(self.config)
@@ -26,13 +24,16 @@ class Vcn():
         print("VCN Created with name {0} and id {1}".format(vcn_name, self.id))
         return
     
-    def register_gateway(self, gateway):
-        self.gateway = gateway
+    def delete_vcn(self):
+        self.virtual_network.delete_vcn(self.id)
+        oci.wait_until(self.virtual_network, self.virtual_network.get_vcn(self.id),
+        'lifecycle_state', 'TERMINATED', succeed_on_not_found=True)
+
+        print('Deleted vcn {0} with id: {1}'.format(self.vcn_name, self.id))
+        self.vcn_name = None
+        self.id = None
         return
-    
-    def register_subnet(self, subnet):
-        self.subnets.add(subnet)
-        return
+
     
 
 

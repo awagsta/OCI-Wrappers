@@ -24,7 +24,6 @@ class Subnet():
 
         self.id = subnet_creation_response.data.id
         self.subnet_name = subnet_name
-        vcn.register_subnet(self)
         
         print("Subnet Created with name {0} and id: {1}".format(subnet_name, self.id))
         return
@@ -35,5 +34,7 @@ class Subnet():
         oci.wait_until(self.virtual_network, self.virtual_network.get_subnet(self.id),
         'lifecycle_state', 'TERMINATED', succeed_on_not_found=True)
 
-        print('Deleted {0} subnet with id {1}'.format(self.subnet_name, self.id))
+        print('Deleted {0} subnet with id: {1}'.format(self.subnet_name, self.id))
+        self.subnet_name = None
+        self.id = None
         return
