@@ -3,23 +3,28 @@ class Gateway():
     def __init__(self, config, compartment_id):
         self.config = config
         self.compartment_id = compartment_id
-        self.gateway_id = None
+        self.id = None
+        self.gateway_name = None
+        self.virtual_network = None
 
-    def create_gateway(self, vcn_id, gateway_name):
-        virtual_network = oci.core.VirtualNetworkClient(self.config)
-        created_gateway = virtual_network.create_internet_gateway(
+    def create_gateway(self, vcn, gateway_name):
+        self.gateway_name = gateway_name
+        self.virtual_network = oci.core.VirtualNetworkClient(self.config)
+        created_gateway = self.virtual_network.create_internet_gateway(
             oci.core.models.CreateInternetGatewayDetails(
                 display_name = gateway_name, 
                 compartment_id = self.compartment_id,
-                is_enabled = True, vcn_id = vcn_id
+                is_enabled = True, vcn_id = vcn.id
             )
         )
 
-        gateway_creation_response = oci.wait_until(virtual_network,
-        virtual_network.get_internet_gateway(created_gateway.data.id), 'lifecycle_state',
+        gateway_creation_response = oci.wait_until(self.virtual_network,
+        self.virtual_network.get_internet_gateway(created_gateway.data.id), 'lifecycle_state',
         'AVAILABLE')
 
-        self.gateway_id = gateway_creation_response.data.id
+        self.id = gateway_creation_response.data.id
+        vcn.register_gateway(self)
+
         
-        print("Internet Gateway Created with name {0} and Id {1}".format(gateway_name, self.gateway_id))
+        print("Internet Gateway Created with name {0} and Id {1}".format(gateway_name, self.id))
         return
