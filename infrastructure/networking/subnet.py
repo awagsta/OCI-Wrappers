@@ -5,21 +5,33 @@ class Subnet():
         self.compartment_id = compartment_id
         self.availability_domain = availability_domain
         self.config = config
-        self.subnet_id = None
+        self.id = None
+        self.subnet_name = None
+        self.virtual_network = None
     
     def create_subnet(self, cidr_block, vcn_id, subnet_name):
-        virtual_network = oci.core.VirtualNetworkClient(self.config)
+        self.virtual_network = oci.core.VirtualNetworkClient(self.config)
 
-        created_subnet = virtual_network.create_subnet(
+        created_subnet = self.virtual_network.create_subnet(
             oci.core.models.CreateSubnetDetails(compartment_id = self.compartment_id,
             availability_domain = self.availability_domain, display_name = subnet_name,
             vcn_id = vcn_id, cidr_block = cidr_block)
             )
         
-        subnet_creation_response = oci.wait_until(virtual_network, virtual_network.get_subnet(created_subnet.data.id),
+        subnet_creation_response = oci.wait_until(self.virtual_network, 
+        self.virtual_network.get_subnet(created_subnet.data.id),
         'lifecycle_State', 'AVAILABLE')
 
-        self.subnet_id = subnet_creation_response.data.id
+        self.id = subnet_creation_response.data.id
+        self.subnet_name = subnet_name
         
-        print("Subnet Created with name {0} and id: {1}".format(subnet_name, self.subnet_id))
+        print("Subnet Created with name {0} and id: {1}".format(subnet_name, self.id))
+        return
+
+    def delete_subnet(self):
+        self.virtual_network.delete_subnet(self.id)
+        oci.wait_until(self.virtual_network, self.virtual_network.get_subnet(self.id),
+        'lifecycle_state', 'TERMINATED', succeed_on_not_found=True)
+        
+        print('Deleted {0} subnet with id {1}'.format(self.subnet_name, self.id))
         return
